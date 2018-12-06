@@ -1,0 +1,13 @@
+{
+    "name": "andreipopa/array_prj",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrei P",
+            "email": "junkypic@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
