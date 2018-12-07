@@ -11,6 +11,10 @@ class Collection extends AbstractDataStructure{
         $this->dataStructure = $dataStructure;
     }
 
+    public function all() {
+        return $this->dataStructure;
+    }
+
     public function offsetExists($offset)
     {
         // TODO: Implement offsetExists() method.
@@ -28,7 +32,33 @@ class Collection extends AbstractDataStructure{
 
     public function offsetUnset($key)
     {
-       $iterator = new \RecursiveIteratorIterator()
+       $this->dataStructure = $this->recursiveScan($this->dataStructure, $key);
+    }
+
+    private function recursiveScan(&$array, $offset) {
+        foreach ($array as $key => &$value) {
+            if($key === $offset){
+                unset($array[$key]);
+                return $array;
+            }
+
+            if (is_array($value)) {
+                $this->recursiveScan($value, $offset);
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Recursively walks the array without breaking the iteration with return
+     *
+     * @return \Generator
+     */
+    public function walkRecursive(): \Generator {
+        foreach (new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->dataStructure)) as $key => $value) {
+            yield $key => $value;
+        }
     }
 
     public function count($countRecursive = false)
