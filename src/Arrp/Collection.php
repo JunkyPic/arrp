@@ -20,34 +20,54 @@ class Collection extends AbstractDataStructure{
         // TODO: Implement offsetExists() method.
     }
 
+    /**
+     * @param mixed $offset
+     * @return mixed
+     */
     public function offsetGet($offset)
     {
-        // TODO: Implement offsetGet() method.
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        // TODO: Implement offsetSet() method.
-    }
-
-    public function offsetUnset($key)
-    {
-       $this->dataStructure = $this->recursiveScan($this->dataStructure, $key);
-    }
-
-    private function recursiveScan(&$array, $offset) {
-        foreach ($array as $key => &$value) {
-            if($key === $offset){
-                unset($array[$key]);
-                return $array;
-            }
-
-            if (is_array($value)) {
-                $this->recursiveScan($value, $offset);
+        foreach (new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->dataStructure)) as $key => $value) {
+            if($key === $offset) {
+                return $value;
             }
         }
 
-        return $array;
+        return null;
+    }
+
+    /**
+     * @param $array
+     * @param $offset
+     * @param $offsetValue
+     * @return mixed
+     */
+    private function recursiveScanOffsetGet($array, $offset) {
+        foreach ($array as $key => $value) {
+            if($key === $offset){
+                return $value;
+            }
+
+            if (is_array($value)) {
+               return $this->recursiveScanOffsetGet($value, $offset);
+            }
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->dataStructure = $this->recursiveScanOffsetSet($this->dataStructure, $offset, $value);
+    }
+
+    /**
+     * @param mixed $key
+     */
+    public function offsetUnset($key)
+    {
+       $this->dataStructure = $this->recursiveScanOffsetUnset($this->dataStructure, $key);
     }
 
     /**
@@ -61,11 +81,19 @@ class Collection extends AbstractDataStructure{
         }
     }
 
+    /**
+     * @param bool $countRecursive
+     * @return int
+     */
     public function count($countRecursive = false)
     {
         return true === $countRecursive ? count($this->dataStructure, COUNT_RECURSIVE) : count($this->dataStructure);
     }
 
+    /**
+     * @param string $json
+     * @return $this|mixed
+     */
     public function fromJson(string $json)
     {
         $result = json_decode($json, true);
@@ -79,8 +107,53 @@ class Collection extends AbstractDataStructure{
         return $this;
     }
 
+    /**
+     * @return false|mixed|string
+     */
     public function toJson()
     {
         return json_encode($this->dataStructure);
+    }
+
+    /**
+     * Internal use
+     *
+     * @param $array
+     * @param $offset
+     * @return mixed
+     */
+    private function recursiveScanOffsetUnset(&$array, $offset) {
+        foreach ($array as $key => &$value) {
+            if($key === $offset){
+                unset($array[$key]);
+                return $array;
+            }
+
+            if (is_array($value)) {
+                $this->recursiveScanOffsetUnset($value, $offset);
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param $array
+     * @param $offset
+     * @param $offsetValue
+     * @return mixed
+     */
+    private function recursiveScanOffsetSet(&$array, $offset, $offsetValue) {
+        foreach ($array as $key => &$value) {
+            if($key === $offset){
+                $array[$key] = $offsetValue;
+            }
+
+            if (is_array($value)) {
+                $this->recursiveScanOffsetSet($value, $offset, $offsetValue);
+            }
+        }
+
+        return $array;
     }
 }

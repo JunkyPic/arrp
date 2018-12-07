@@ -12,19 +12,18 @@ $ds = new \Arrp\Collection([
             'to_unset1' => 'value',
         ],
         'inner_value_value2' => [
-            'to_unset' => 'value',
+            'asdfa' => 'asdfasfadf',
             'to_unset2' => 'value',
             'to_unset1' => 'value',
             'inner_data' => 'value',
             'inner_value_value4' => [
                 'to_unset' => 'value',
-                'asdfa' => 'value',
+                'asdfa' => 'value2',
                 'to_unset1' => 'value',
             ],
         ]
     ]
 ]);
 
-$ds->offsetUnset('asdfa');
 echo '<pre>';
-print_r($ds->all());
+var_dump($ds->offsetGet('asdfa'));
